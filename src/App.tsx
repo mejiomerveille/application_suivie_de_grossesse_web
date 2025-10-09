@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './hooks/useAuth';
+import LandingPage from './components/LandingPage';
 import AuthScreen from './components/AuthScreen';
 import Header from './components/Header';
 import Dashboard from './components/Dashboard';
@@ -15,13 +16,19 @@ import ProductManagement from './components/ProductManagement';
 function App() {
   const { user, isLoading, getAvailableFeatures } = useAuth();
   const [activeSection, setActiveSection] = useState('dashboard');
+  const [showLanding, setShowLanding] = useState(true);
   
   const availableFeatures = getAvailableFeatures();
 
   // Debug logs pour comprendre l'état
   useEffect(() => {
-    // console.log('App state:', { user, isLoading, availableFeatures });
+    console.log('App state:', { user, isLoading, availableFeatures });
   }, [user, isLoading, availableFeatures]);
+
+  // Fonction pour passer de la landing page à l'auth
+  const handleGetStarted = () => {
+    setShowLanding(false);
+  };
 
   // Vérifier si la section active est disponible pour l'utilisateur
   useEffect(() => {
@@ -44,13 +51,18 @@ function App() {
     );
   }
 
+  // Afficher la landing page si pas d'utilisateur et showLanding = true
+  if (!user && showLanding) {
+    return <LandingPage onGetStarted={handleGetStarted} />;
+  }
+
   // Écran d'authentification si pas d'utilisateur
   if (!user) {
-    // console.log('No user, showing auth screen');
+    console.log('No user, showing auth screen');
     return <AuthScreen />;
   }
 
-  // console.log('User authenticated, showing main app');
+  console.log('User authenticated, showing main app');
 
   const renderActiveSection = () => {
     // Vérifier que la section est disponible

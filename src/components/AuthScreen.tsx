@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Lock, User, Calendar, Heart, Shield } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { apiService } from '../services/api';
 import OtpVerification from './OtpVerification';
 import RoleSelection from './RoleSelection';
 
@@ -16,6 +17,48 @@ const AuthScreen: React.FC = () => {
     confirmPassword: ''
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState<'success' | 'error' | ''>('');
+  
+  const { login, storePendingUserData, pendingEmail, verifyEmail, register } = useAuth();
+
+   const handleVerificationSuccess = () => {
+    // L'utilisateur sera automatiquement connecté après vérification
+    setShowOtpVerification(false);
+  };
+
+  const handleBackFromOtp = () => {
+    setShowOtpVerification(false);
+    setShowRoleSelection(true);
+  };
+
+  const completePendingRegistration = async (role: string, additionalInfo?: { doctorSpecialty?: string; relationToPregnantWoman?: string; expectedDueDate?: string }) => {
+    if (!pendingEmail) {
+      throw new Error('Aucune donnée d\'inscription en attente');
+    }
+
+    const registerData = {
+      username: pendingEmail.split('@')[0],
+      email: pendingEmail,
+      password: formData.password,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      phone: '',
+      role: role.toUpperCase() as 'PATIENT' | 'FAMILY' | 'PROFESSIONAL' | 'ADMIN',
+      specialization: additionalInfo?.doctorSpecialty,
+      relationToPatient: additionalInfo?.relationToPregnantWoman,
+      expectedDueDate: additionalInfo?.expectedDueDate
+    };
+
+    const response = await apiService.register(registerData);
+    
+    if (response.error) {
+      throw new Error(response.error);
+    }
+
+    return response.data;
+  };
+
   if (showOtpVerification && pendingEmail) {
     return (
       <OtpVerification
@@ -26,19 +69,26 @@ const AuthScreen: React.FC = () => {
     );
   }
 
-  
-  const { login, storePendingUserData, pendingEmail, verifyEmail } = useAuth();
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setMessage('');
+    setMessageType('');
 
     try {
       if (isLogin) {
-        await login(formData.email, formData.password);
+        const user = await login(formData.email, formData.password);
+        setMessage(`Bienvenue ${user.firstName} !`);
+        setMessageType('success');
+        
+        // Redirection automatique après 1.5 secondes
+        setTimeout(() => {
+          // La redirection se fera automatiquement via App.tsx quand user sera défini
+        }, 1500);
       } else {
         if (formData.password !== formData.confirmPassword) {
-          alert('Les mots de passe ne correspondent pas');
+          setMessage('Les mots de passe ne correspondent pas');
+          setMessageType('error');
           return;
         }
         
@@ -55,6 +105,8 @@ const AuthScreen: React.FC = () => {
       }
     } catch (error) {
       console.error('Erreur d\'authentification:', error);
+      setMessage(error instanceof Error ? error.message : 'Erreur d\'authentification');
+      setMessageType('error');
     } finally {
       setIsLoading(false);
     }
@@ -63,26 +115,16 @@ const AuthScreen: React.FC = () => {
   const handleRoleSelect = async (role: string, additionalInfo?: { doctorSpecialty?: string; relationToPregnantWoman?: string; expectedDueDate?: string }) => {
     try {
       setIsLoading(true);
-      const { completePendingRegistration } = useAuth();
-      await completePendingRegistration(role as any, additionalInfo);
+      const response = await completePendingRegistration(role as any, additionalInfo);
       setShowOtpVerification(true);
       setShowRoleSelection(false);
     } catch (error) {
       console.error('Erreur lors de l\'inscription:', error);
-      alert('Erreur lors de l\'inscription. Veuillez réessayer.');
+      setMessage(error instanceof Error ? error.message : 'Erreur lors de l\'inscription. Veuillez réessayer.');
+      setMessageType('error');
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleVerificationSuccess = () => {
-    // L'utilisateur sera automatiquement connecté après vérification
-    setShowOtpVerification(false);
-  };
-
-  const handleBackFromOtp = () => {
-    setShowOtpVerification(false);
-    setShowRoleSelection(true);
   };
 
   const handleBackFromRole = () => {
@@ -167,6 +209,16 @@ const AuthScreen: React.FC = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {message && (
+              <div className={`p-4 rounded-lg border ${
+                messageType === 'success' 
+                  ? 'bg-green-50 border-green-200 text-green-700' 
+                  : 'bg-red-50 border-red-200 text-red-700'
+              }`}>
+                <p className="text-sm font-medium">{message}</p>
+              </div>
+            )}
+
             {!isLogin && (
               <div className="grid grid-cols-2 gap-4">
                 <div>

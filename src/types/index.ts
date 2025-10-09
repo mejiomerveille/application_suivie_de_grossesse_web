@@ -1,12 +1,18 @@
 export interface User {
-  id: string;
+  userId: string;
   email: string;
   firstName: string;
   lastName: string;
   avatar?: string;
-  role: 'patient' | 'family' | 'professional' | 'admin';
+  role: 'patient' | 'family' | 'professional' | 'admin' | 'merchant';
   doctorSpecialty?: string;
   relationToPregnantWoman?: string;
+  businessName?: string;
+  businessAddress?: string;
+  businessPhone?: string;
+  businessWhatsapp?: string;
+  businessDescription?: string;
+  businessSpecialties?: string[];
   pregnancyStartDate?: string;
   dueDate?: string;
   isPremium: boolean;

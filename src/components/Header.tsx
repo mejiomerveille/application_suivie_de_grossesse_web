@@ -14,11 +14,16 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
 
   const allNavigation = [
     { id: 'dashboard', name: 'Tableau de bord', roles: ['patient', 'family', 'professional', 'admin'] },
+    { id: 'pregnancy', name: 'Ma Grossesse', roles: ['patient'] },
     { id: 'calendar', name: 'Calendrier', roles: ['patient', 'family', 'professional'] },
     { id: 'centers', name: 'Centres de santé', roles: ['patient', 'family'] },
     { id: 'tips', name: 'Conseils', roles: ['patient', 'family'] },
+    { id: 'shop', name: 'Boutique', roles: ['patient', 'family'] },
     { id: 'consultation', name: 'Téléconsultation', roles: ['patient', 'family', 'professional'] },
     { id: 'patients', name: 'Mes Patients', roles: ['professional'] },
+    { id: 'merchant-dashboard', name: 'Mon Commerce', roles: ['merchant'] },
+    { id: 'products', name: 'Mes Produits', roles: ['merchant'] },
+    { id: 'orders', name: 'Commandes', roles: ['merchant'] },
     { id: 'admin', name: 'Administration', roles: ['admin'] },
   ];
 

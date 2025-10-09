@@ -1,169 +1,259 @@
-import React from 'react';
-import { ArrowLeft, Clock, User, Calendar, Play, Lock, Crown } from 'lucide-react';
-import type { HealthTip } from '../types';
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, Clock, User, Calendar, Share2, Bookmark, Heart } from 'lucide-react';
+import { pregnancyApiService } from '../services/pregnancyApi';
+import ArticleCard from './ArticleCard';
 
-interface ArticleDetailProps {
-  article: HealthTip;
-  onBack: () => void;
-  onUpgradeToPremium?: () => void;
+interface Article {
+  id: string;
+  title: string;
+  content: string;
+  category: string;
+  author: string;
+  published_date: string;
+  image_url?: string;
+  read_time?: number;
 }
 
-const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onUpgradeToPremium }) => {
-  const handleVideoPlay = () => {
-    if (article.isPremium) {
-      onUpgradeToPremium?.();
-    } else {
-      // Logique pour lire la vidéo
-      console.log('Lecture de la vidéo:', article.videoUrl);
+interface ArticleDetailProps {
+  article: Article;
+  onBack: () => void;
+  onArticleClick: (article: Article) => void;
+}
+
+const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onArticleClick }) => {
+  const [similarArticles, setSimilarArticles] = useState<Article[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+
+  useEffect(() => {
+    loadSimilarArticles();
+  }, [article.id]);
+
+  const loadSimilarArticles = async () => {
+    try {
+      setIsLoading(true);
+      // Charger des articles de la même catégorie
+      const articles = await pregnancyApiService.getArticles();
+      const similar = articles
+        .filter(a => a.id !== article.id && a.category === article.category)
+        .slice(0, 4);
+      setSimilarArticles(similar);
+    } catch (error) {
+      console.error('Erreur lors du chargement des articles similaires:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const categoryColors = {
-    nutrition: 'bg-green-100 text-green-700',
-    exercise: 'bg-blue-100 text-blue-700',
-    wellness: 'bg-purple-100 text-purple-700',
-    preparation: 'bg-orange-100 text-orange-700'
+  const getCategoryColor = (category: string) => {
+    switch (category.toLowerCase()) {
+      case 'medical':
+        return 'bg-blue-100 text-blue-700';
+      case 'nutrition':
+        return 'bg-green-100 text-green-700';
+      case 'exercise':
+        return 'bg-purple-100 text-purple-700';
+      case 'wellness':
+        return 'bg-orange-100 text-orange-700';
+      default:
+        return 'bg-gray-100 text-gray-700';
+    }
+  };
+
+  const getCategoryName = (category: string) => {
+    switch (category.toLowerCase()) {
+      case 'medical':
+        return 'Médical';
+      case 'nutrition':
+        return 'Nutrition';
+      case 'exercise':
+        return 'Exercices';
+      case 'wellness':
+        return 'Bien-être';
+      default:
+        return category;
+    }
+  };
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: article.title,
+        text: article.content.substring(0, 100) + '...',
+        url: window.location.href,
+      });
+    } else {
+      // Fallback pour les navigateurs qui ne supportent pas l'API Share
+      navigator.clipboard.writeText(window.location.href);
+      alert('Lien copié dans le presse-papiers !');
+    }
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Navigation */}
       <button
         onClick={onBack}
         className="flex items-center space-x-2 text-pink-600 hover:text-pink-700 mb-6 transition-colors"
       >
         <ArrowLeft className="h-5 w-5" />
-        <span>Retour aux conseils</span>
+        <span>Retour aux articles</span>
       </button>
 
-      {/* En-tête de l'article */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
-        {/* Image de l'article */}
-        {article.image && (
-          <div className="relative h-64 md:h-80">
-            <img
-              src={article.image}
-              alt={article.title}
-              className="w-full h-full object-cover"
-            />
-            {article.isVideo && (
-              <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        {/* Contenu principal */}
+        <div className="lg:col-span-3">
+          <article className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            {/* Image de l'article */}
+            {article.image_url && (
+              <div className="relative h-64 md:h-80">
+                <img
+                  src={article.image_url}
+                  alt={article.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+
+            <div className="p-6 md:p-8">
+              {/* Métadonnées */}
+              <div className="flex flex-wrap items-center gap-4 mb-6">
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(article.category)}`}>
+                  {getCategoryName(article.category)}
+                </span>
+                <div className="flex items-center space-x-1 text-gray-500">
+                  <User className="h-4 w-4" />
+                  <span className="text-sm">{article.author}</span>
+                </div>
+                <div className="flex items-center space-x-1 text-gray-500">
+                  <Calendar className="h-4 w-4" />
+                  <span className="text-sm">
+                    {new Date(article.published_date).toLocaleDateString('fr-FR')}
+                  </span>
+                </div>
+                {article.read_time && (
+                  <div className="flex items-center space-x-1 text-gray-500">
+                    <Clock className="h-4 w-4" />
+                    <span className="text-sm">{article.read_time} min de lecture</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Titre */}
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight">
+                {article.title}
+              </h1>
+
+              {/* Actions */}
+              <div className="flex items-center space-x-4 mb-8 pb-6 border-b border-gray-200">
                 <button
-                  onClick={handleVideoPlay}
-                  className={`flex items-center space-x-3 px-6 py-3 rounded-full font-semibold transition-all transform hover:scale-105 ${
-                    article.isPremium
-                      ? 'bg-yellow-500 text-white hover:bg-yellow-600'
-                      : 'bg-white text-gray-900 hover:bg-gray-100'
+                  onClick={() => setIsLiked(!isLiked)}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                    isLiked 
+                      ? 'bg-red-100 text-red-600' 
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                 >
-                  {article.isPremium ? <Lock className="h-5 w-5" /> : <Play className="h-5 w-5" />}
-                  <span>{article.isPremium ? 'Premium requis' : 'Lire la vidéo'}</span>
+                  <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
+                  <span>J'aime</span>
                 </button>
-              </div>
-            )}
-          </div>
-        )}
-
-        <div className="p-6 md:p-8">
-          {/* Métadonnées */}
-          <div className="flex flex-wrap items-center gap-4 mb-6">
-            <div className={`px-3 py-1 rounded-full text-sm font-medium ${categoryColors[article.category]}`}>
-              {article.category === 'nutrition' ? 'Nutrition' :
-               article.category === 'exercise' ? 'Exercices' :
-               article.category === 'wellness' ? 'Bien-être' : 'Préparation'}
-            </div>
-            <div className="flex items-center space-x-1 text-gray-500">
-              <Clock className="h-4 w-4" />
-              <span className="text-sm">{article.readTime} min de lecture</span>
-            </div>
-            <div className="flex items-center space-x-1 text-gray-500">
-              <User className="h-4 w-4" />
-              <span className="text-sm">{article.author}</span>
-            </div>
-            <div className="flex items-center space-x-1 text-gray-500">
-              <Calendar className="h-4 w-4" />
-              <span className="text-sm">
-                {new Date(article.publishedDate).toLocaleDateString('fr-FR')}
-              </span>
-            </div>
-            {article.isPremium && (
-              <div className="flex items-center space-x-1 bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">
-                <Crown className="h-4 w-4" />
-                <span className="text-sm font-medium">Premium</span>
-              </div>
-            )}
-          </div>
-
-          {/* Titre */}
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight">
-            {article.title}
-          </h1>
-
-          {/* Résumé */}
-          <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-            {article.content}
-          </p>
-        </div>
-      </div>
-
-      {/* Contenu de l'article */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
-        {article.isPremium && !article.isVideo ? (
-          // Contenu premium verrouillé (articles texte)
-          <div className="relative">
-            <div className="opacity-30 pointer-events-none">
-              <div className="prose prose-lg max-w-none">
-                <p>{article.fullContent.substring(0, 300)}...</p>
-                <h3>Section suivante</h3>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-                <h3>Conseils pratiques</h3>
-                <ul>
-                  <li>Conseil numéro 1</li>
-                  <li>Conseil numéro 2</li>
-                  <li>Conseil numéro 3</li>
-                </ul>
-              </div>
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-white rounded-2xl shadow-lg p-8 text-center max-w-md">
-                <div className="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full p-4 w-fit mx-auto mb-4">
-                  <Crown className="h-8 w-8 text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Contenu Premium</h3>
-                <p className="text-gray-600 mb-6">
-                  Accédez à l'article complet avec nos conseils d'experts et recommandations personnalisées.
-                </p>
+                
                 <button
-                  onClick={onUpgradeToPremium}
-                  className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-3 rounded-lg hover:from-yellow-500 hover:to-orange-600 transition-all transform hover:scale-105 font-semibold"
+                  onClick={() => setIsBookmarked(!isBookmarked)}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                    isBookmarked 
+                      ? 'bg-blue-100 text-blue-600' 
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
                 >
-                  Passer Premium
+                  <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-current' : ''}`} />
+                  <span>Sauvegarder</span>
+                </button>
+                
+                <button
+                  onClick={handleShare}
+                  className="flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  <Share2 className="h-4 w-4" />
+                  <span>Partager</span>
                 </button>
               </div>
-            </div>
-          </div>
-        ) : (
-          // Contenu gratuit ou premium déverrouillé
-          <div className="prose prose-lg max-w-none">
-            <div dangerouslySetInnerHTML={{ __html: article.fullContent }} />
-          </div>
-        )}
-      </div>
 
-      {/* Articles similaires */}
-      <div className="mt-12">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Articles similaires</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Placeholder pour articles similaires */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <div className="h-32 bg-gray-200 rounded-lg mb-4"></div>
-            <h3 className="font-semibold text-gray-900 mb-2">Article similaire 1</h3>
-            <p className="text-gray-600 text-sm">Description de l'article similaire...</p>
-          </div>
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <div className="h-32 bg-gray-200 rounded-lg mb-4"></div>
-            <h3 className="font-semibold text-gray-900 mb-2">Article similaire 2</h3>
-            <p className="text-gray-600 text-sm">Description de l'article similaire...</p>
+              {/* Contenu de l'article */}
+              <div className="prose prose-lg max-w-none">
+                <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+                  {article.content}
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        {/* Sidebar avec articles similaires */}
+        <div className="lg:col-span-1">
+          <div className="sticky top-8">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Articles similaires
+              </h3>
+              
+              {isLoading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="animate-pulse">
+                      <div className="h-20 bg-gray-200 rounded-lg mb-2"></div>
+                      <div className="h-4 bg-gray-200 rounded mb-1"></div>
+                      <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                    </div>
+                  ))}
+                </div>
+              ) : similarArticles.length > 0 ? (
+                <div className="space-y-4">
+                  {similarArticles.map((similarArticle) => (
+                    <div
+                      key={similarArticle.id}
+                      onClick={() => onArticleClick(similarArticle)}
+                      className="cursor-pointer group"
+                    >
+                      <div className="flex space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div className="flex-shrink-0">
+                          {similarArticle.image_url ? (
+                            <img
+                              src={similarArticle.image_url}
+                              alt={similarArticle.title}
+                              className="w-16 h-16 object-cover rounded-lg"
+                            />
+                          ) : (
+                            <div className="w-16 h-16 bg-gradient-to-br from-pink-100 to-blue-100 rounded-lg flex items-center justify-center">
+                              <span className="text-lg">📖</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-pink-600 transition-colors">
+                            {similarArticle.title}
+                          </h4>
+                          <div className="flex items-center space-x-2 mt-1">
+                            <span className="text-xs text-gray-500">{similarArticle.author}</span>
+                            {similarArticle.read_time && (
+                              <>
+                                <span className="text-xs text-gray-400">•</span>
+                                <span className="text-xs text-gray-500">{similarArticle.read_time} min</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-500 text-sm">
+                  Aucun article similaire trouvé.
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </div>

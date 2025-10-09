@@ -17,29 +17,16 @@ export const useAuth = () => {
   const [pendingUserData, setPendingUserData] = useState<PendingUserData | null>(null);
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
 
-  useEffect(() => {
-    const initAuth = async () => {
+    useEffect(() => {
+    // On init, récupérer user depuis localStorage si token présent
+    const initAuth = () => {
       const token = localStorage.getItem('authToken');
-      const sessionId = localStorage.getItem('sessionId');
-      
-      if (token && sessionId) {
-        try {
-          const sessionResponse = await apiService.validateSession();
-          if (sessionResponse.data?.valid) {
-            const userResponse = await apiService.getCurrentUser();
-            if (userResponse.data) {
-              setUser(mapBackendUserToFrontend(userResponse.data));
-            }
-          } else {
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('sessionId');
-          }
-        } catch (error) {
-          console.error('Erreur lors de la validation de session:', error);
-          localStorage.removeItem('authToken');
-          localStorage.removeItem('sessionId');
-        }
+      const storedUser = localStorage.getItem('authUser');
+
+      if (token && storedUser) {
+        setUser(JSON.parse(storedUser));
       }
+
       setIsLoading(false);
     };
 
@@ -48,19 +35,13 @@ export const useAuth = () => {
 
   const mapBackendUserToFrontend = (backendUser: AuthResponse['user']): User => {
     return {
-      id: backendUser.id.toString(),
+      userId: backendUser.userId,
       email: backendUser.email,
       firstName: backendUser.firstName,
       lastName: backendUser.lastName,
       role: backendUser.role.toLowerCase() as User['role'],
-      doctorSpecialty: backendUser.specialization,
-      relationToPregnantWoman: backendUser.relationToPatient,
-      pregnancyStartDate: backendUser.expectedDueDate ? 
-        new Date(new Date(backendUser.expectedDueDate).getTime() - (40 * 7 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0] : 
-        undefined,
-      dueDate: backendUser.expectedDueDate,
       isPremium: false,
-      createdAt: new Date().toISOString()
+      createdAt: backendUser.createdAt
     };
   };
 
@@ -101,21 +82,25 @@ export const useAuth = () => {
     return response.data;
   };
 
-  const login = async (usernameOrEmail: string, password: string) => {
-    const response = await apiService.login({ usernameOrEmail, password });
-    
-    if (response.error) {
-      throw new Error(response.error);
-    }
+
+    const login = async (usernameOrEmail: string, password: string) => {
+    const response = await apiService.login({ email: usernameOrEmail, password });
+    if (response.error) throw new Error(response.error);
 
     if (response.data?.user) {
       const frontendUser = mapBackendUserToFrontend(response.data.user);
       setUser(frontendUser);
+
+      // Stocker token et user dans localStorage
+      localStorage.setItem('authToken', response.data.token);
+      localStorage.setItem('authUser', JSON.stringify(frontendUser));
+
+      setIsLoading(false);
       return frontendUser;
     }
 
     throw new Error('Erreur lors de la connexion');
-  };
+  }
 
   const verifyEmail = async (email: string, otpCode: string) => {
     const response = await apiService.verifyEmail(email, otpCode);
@@ -128,6 +113,7 @@ export const useAuth = () => {
       const frontendUser = mapBackendUserToFrontend(response.data.user);
       setUser(frontendUser);
       setPendingEmail(null);
+      setIsLoading(false);
       return frontendUser;
     }
 
@@ -160,7 +146,7 @@ export const useAuth = () => {
     if (!user) return;
 
     try {
-      const response = await apiService.updateUser(parseInt(user.id), {
+      const response = await apiService.updateUser(parseInt(user.userId), {
         firstName: updates.firstName,
         lastName: updates.lastName,
         phone: updates.phone,
@@ -242,6 +228,10 @@ export const useAuth = () => {
     return hasRole('admin');
   };
 
+  const isMerchant = (): boolean => {
+    return hasRole('merchant');
+  };
+
   const canAccessPremiumFeatures = (): boolean => {
     return user?.isPremium || false;
   };
@@ -261,7 +251,7 @@ export const useAuth = () => {
   const getAvailableFeatures = () => {
     if (!user) return [];
 
-    const features = ['dashboard', 'profile'];
+    const features = ['dashboard'];
 
     if (canManageAppointments()) {
       features.push('calendar');
@@ -273,10 +263,19 @@ export const useAuth = () => {
 
     if (hasRole(['patient', 'family'])) {
       features.push('tips');
+      features.push('shop');
+    }
+
+    if (hasRole(['patient'])) {
+      features.push('pregnancy');
     }
 
     if (canAccessTeleconsultation()) {
       features.push('consultation');
+    }
+
+    if (isMerchant()) {
+      features.push('merchant-dashboard', 'products', 'orders');
     }
 
     if (isAdmin()) {
@@ -307,6 +306,8 @@ export const useAuth = () => {
         return user.doctorSpecialty || 'Professionnel de santé';
       case 'admin':
         return 'Administrateur';
+      case 'merchant':
+        return user.businessName || 'Commerçant';
       default:
         return 'Utilisateur';
     }
@@ -354,6 +355,13 @@ export const useAuth = () => {
           showAppointments: true,
           showTeleconsultation: true,
         };
+      case 'merchant':
+        return {
+          ...baseConfig,
+          showProductManagement: true,
+          showOrderManagement: true,
+          showBusinessStats: true,
+        };
       default:
         return baseConfig;
     }
@@ -377,6 +385,7 @@ export const useAuth = () => {
     isPregnantWoman,
     isFamilyMember,
     isAdmin,
+    isMerchant,
     canAccessPremiumFeatures,
     canAccessTeleconsultation,
     canManageAppointments,

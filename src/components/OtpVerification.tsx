@@ -83,11 +83,14 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         if (attempts >= 2) {
           setError('Trop de tentatives échouées. Veuillez demander un nouveau code.');
         }
+        // Réinitialiser le code en cas d'erreur
+        setOtpCode(['', '', '', '', '', '']);
       } else {
         onVerificationSuccess();
       }
     } catch (error) {
       setError('Erreur de vérification. Veuillez réessayer.');
+      setOtpCode(['', '', '', '', '', '']);
     } finally {
       setIsLoading(false);
     }

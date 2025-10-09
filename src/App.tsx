@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from './hooks/useAuth';
 import AuthScreen from './components/AuthScreen';
 import Header from './components/Header';
@@ -7,6 +7,10 @@ import Calendar from './components/Calendar';
 import HealthTips from './components/HealthTips';
 import HealthCenters from './components/HealthCenters';
 import Consultation from './components/Consultation';
+import PregnancyTracking from './components/PregnancyTracking';
+import Shop from './components/Shop';
+import MerchantDashboard from './components/MerchantDashboard';
+import ProductManagement from './components/ProductManagement';
 
 function App() {
   const { user, isLoading, getAvailableFeatures } = useAuth();
@@ -14,27 +18,44 @@ function App() {
   
   const availableFeatures = getAvailableFeatures();
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"></div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <AuthScreen />;
-  }
+  // Debug logs pour comprendre l'état
+  useEffect(() => {
+    // console.log('App state:', { user, isLoading, availableFeatures });
+  }, [user, isLoading, availableFeatures]);
 
   // Vérifier si la section active est disponible pour l'utilisateur
-  React.useEffect(() => {
-    if (user && !availableFeatures.includes(activeSection)) {
+  useEffect(() => {
+    if (user && availableFeatures.length > 0 && !availableFeatures.includes(activeSection)) {
+      console.log('Redirecting to dashboard, current section not available:', activeSection);
       setActiveSection('dashboard');
     }
   }, [user, availableFeatures, activeSection]);
 
+  // Écran de chargement
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-rose-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-pink-500 mx-auto mb-6"></div>
+          <h2 className="text-xl font-semibold text-gray-700 mb-2">Chargement d'Intimia...</h2>
+          <p className="text-gray-500">Préparation de votre espace personnel</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Écran d'authentification si pas d'utilisateur
+  if (!user) {
+    // console.log('No user, showing auth screen');
+    return <AuthScreen />;
+  }
+
+  // console.log('User authenticated, showing main app');
+
   const renderActiveSection = () => {
+    // Vérifier que la section est disponible
     if (!availableFeatures.includes(activeSection)) {
+      console.log('Section not available, showing dashboard');
       return <Dashboard />;
     }
 
@@ -49,7 +70,16 @@ function App() {
         return <HealthTips />;
       case 'consultation':
         return <Consultation />;
+      case 'pregnancy':
+        return <PregnancyTracking />;
+      case 'shop':
+        return <Shop />;
+      case 'merchant-dashboard':
+        return <MerchantDashboard />;
+      case 'products':
+        return <ProductManagement />;
       default:
+        console.log('Unknown section, showing dashboard:', activeSection);
         return <Dashboard />;
     }
   };

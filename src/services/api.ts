@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 export interface ApiResponse<T> {
   data?: T;
@@ -7,7 +7,7 @@ export interface ApiResponse<T> {
 }
 
 export interface LoginRequest {
-  usernameOrEmail: string;
+  email: string;
   password: string;
 }
 
@@ -18,7 +18,7 @@ export interface RegisterRequest {
   firstName: string;
   lastName: string;
   phone?: string;
-  role: 'PATIENT' | 'FAMILY' | 'PROFESSIONAL' | 'ADMIN';
+  role: 'PATIENT' | 'FAMILY' | 'PROFESSIONAL' | 'ADMIN' | 'C';
   expectedDueDate?: string;
   specialization?: string;
   relationToPatient?: string;
@@ -30,23 +30,18 @@ export interface OtpVerificationRequest {
 }
 
 export interface AuthResponse {
-  token: string | null;
-  type: string;
+  message: string;
+  token: string;
   user: {
-    id: number;
-    username: string;
+    userId: string;
     email: string;
     firstName: string;
     lastName: string;
-    role: string;
-    status: string;
-    emailVerified: boolean;
+    role: 'patient' | 'family' | 'professional' | 'admin';
+    verified: boolean;
     phone?: string;
-    expectedDueDate?: string;
-    specialization?: string;
-    relationToPatient?: string;
+    createdAt: string;
   };
-  sessionId: string | null;
 }
 
 class ApiService {
@@ -57,13 +52,9 @@ class ApiService {
 
     if (includeAuth) {
       const token = localStorage.getItem('authToken');
-      const sessionId = localStorage.getItem('sessionId');
       
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
-      }
-      if (sessionId) {
-        headers['Session-Id'] = sessionId;
       }
     }
 
@@ -95,8 +86,17 @@ class ApiService {
         headers: this.getHeaders(),
         body: JSON.stringify(userData),
       });
+      console.log(userData)
 
-      return this.handleResponse<AuthResponse>(response);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        return {
+          error: errorData.message || `HTTP error! status: ${response.status}`,
+        };
+      }
+
+      const data = await response.json();
+      return { data };
     } catch (error) {
       return {
         error: 'Erreur de connexion au serveur',
@@ -104,15 +104,28 @@ class ApiService {
     }
   }
 
-  async verifyEmail(email: string, otpCode: string): Promise<ApiResponse<AuthResponse>> {
+  async verifyEmail(email: string, otp: string): Promise<ApiResponse<AuthResponse>> {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/verify-email`, {
+      const response = await fetch(`${API_BASE_URL}/auth/verify-otp`, {
         method: 'POST',
         headers: this.getHeaders(),
-        body: JSON.stringify({ email, otpCode }),
+        body: JSON.stringify({ email, otp }),
       });
 
-      return this.handleResponse<AuthResponse>(response);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        return {
+          error: errorData.message || `HTTP error! status: ${response.status}`,
+        };
+      }
+
+      const data = await response.json();
+      
+      if (data.token) {
+        localStorage.setItem('authToken', data.token);
+      }
+
+      return { data };
     } catch (error) {
       return {
         error: 'Erreur de connexion au serveur',
@@ -144,16 +157,20 @@ class ApiService {
         body: JSON.stringify(credentials),
       });
 
-      const result = await this.handleResponse<AuthResponse>(response);
-      
-      if (result.data?.token) {
-        localStorage.setItem('authToken', result.data.token);
-        if (result.data.sessionId) {
-          localStorage.setItem('sessionId', result.data.sessionId);
-        }
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        return {
+          error: errorData.message || `HTTP error! status: ${response.status}`,
+        };
       }
 
-      return result;
+      const data = await response.json();
+      
+      if (data.token) {
+        localStorage.setItem('authToken', data.token);
+      }
+
+      return { data };
     } catch (error) {
       return {
         error: 'Erreur de connexion au serveur',
@@ -163,23 +180,16 @@ class ApiService {
 
   async logout(): Promise<ApiResponse<void>> {
     try {
-      const sessionId = localStorage.getItem('sessionId');
-      const url = sessionId 
-        ? `${API_BASE_URL}/auth/logout?sessionId=${sessionId}`
-        : `${API_BASE_URL}/auth/logout`;
-
-      const response = await fetch(url, {
+      const response = await fetch(`${API_BASE_URL}/auth/logout`, {
         method: 'POST',
         headers: this.getHeaders(true),
       });
 
       localStorage.removeItem('authToken');
-      localStorage.removeItem('sessionId');
 
       return this.handleResponse<void>(response);
     } catch (error) {
       localStorage.removeItem('authToken');
-      localStorage.removeItem('sessionId');
       return {
         error: 'Erreur de connexion au serveur',
       };
@@ -188,12 +198,12 @@ class ApiService {
 
   async validateSession(): Promise<ApiResponse<{ valid: boolean }>> {
     try {
-      const sessionId = localStorage.getItem('sessionId');
-      if (!sessionId) {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
         return { data: { valid: false } };
       }
 
-      const response = await fetch(`${API_BASE_URL}/auth/session/validate?sessionId=${sessionId}`, {
+      const response = await fetch(`${API_BASE_URL}/auth/validate`, {
         method: 'GET',
         headers: this.getHeaders(true),
       });

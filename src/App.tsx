@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './hooks/useAuth';
 import LandingPage from './components/LandingPage';
+import BlogPage from './components/BlogPage';
 import AuthScreen from './components/AuthScreen';
 import Header from './components/Header';
 import Dashboard from './components/Dashboard';
@@ -17,6 +18,7 @@ function App() {
   const { user, isLoading, getAvailableFeatures } = useAuth();
   const [activeSection, setActiveSection] = useState('dashboard');
   const [showLanding, setShowLanding] = useState(true);
+  const [showBlog, setShowBlog] = useState(false);
   
   const availableFeatures = getAvailableFeatures();
 
@@ -28,6 +30,19 @@ function App() {
   // Fonction pour passer de la landing page à l'auth
   const handleGetStarted = () => {
     setShowLanding(false);
+    setShowBlog(false);
+  };
+
+  // Fonction pour afficher le blog
+  const handleShowBlog = () => {
+    setShowBlog(true);
+    setShowLanding(false);
+  };
+
+  // Fonction pour retourner à la landing
+  const handleBackToLanding = () => {
+    setShowBlog(false);
+    setShowLanding(true);
   };
 
   // Vérifier si la section active est disponible pour l'utilisateur
@@ -52,8 +67,13 @@ function App() {
   }
 
   // Afficher la landing page si pas d'utilisateur et showLanding = true
-  if (!user && showLanding) {
-    return <LandingPage onGetStarted={handleGetStarted} />;
+  if (!user && showLanding && !showBlog) {
+    return <LandingPage onGetStarted={handleGetStarted} onShowBlog={handleShowBlog} />;
+  }
+
+  // Afficher la page blog
+  if (!user && showBlog) {
+    return <BlogPage onBack={handleBackToLanding} />;
   }
 
   // Écran d'authentification si pas d'utilisateur

@@ -169,7 +169,8 @@ const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStarted }) =
     { number: "50,000+", label: "Mamans accompagnées", icon: Heart },
     { number: "98%", label: "Satisfaction client", icon: Star },
     { number: "24/7", label: "Support disponible", icon: Headphones },
-    { number: "15+", label: "Pays couverts", icon: Globe }
+    { number: "15+", label: "Pays couverts", icon: Globe },
+    { number: "15+", label: "Pays couverts", icon: TrendingUp }
   ];
 
   const beforeAfter = [
@@ -216,7 +217,7 @@ const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStarted }) =
     },
     {
       name: "Premium",
-      price: "29",
+      price: "2000",
       period: "/mois",
       features: [
         "Suivi IA personnalisé",
@@ -232,7 +233,7 @@ const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStarted }) =
     },
     {
       name: "Famille",
-      price: "49",
+      price: "3500",
       period: "/mois",
       features: [
         "Tout Premium inclus",
@@ -301,13 +302,13 @@ const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStarted }) =
                 <span className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-rose-600 bg-clip-text text-transparent">
                   Intimia
                 </span>
-                <motion.span
+                {/* <motion.span
                   className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-medium"
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
                   IA Powered
-                </motion.span>
+                </motion.span> */}
               </motion.div>
               
               <motion.h1
@@ -895,7 +896,7 @@ const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStarted }) =
                 <div className="text-center mb-8">
                   <h3 className="text-2xl font-bold mb-4">{plan.name}</h3>
                   <div className="mb-4">
-                    <span className="text-5xl font-bold">{plan.price}€</span>
+                    <span className="text-5xl font-bold">{plan.price}FCFA</span>
                     <span className="text-gray-300">{plan.period}</span>
                   </div>
                 </div>

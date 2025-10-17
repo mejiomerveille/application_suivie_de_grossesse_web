@@ -35,7 +35,9 @@ import {
   ChevronRight
 } from 'lucide-react';
 
-const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStarted }) => {
+// const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStarted }) => {
+const LandingPage: React.FC<{ onGetStarted: () => void; onShowBlog: () => void }> = ({ onGetStarted, onShowBlog }) => {
+
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const { scrollY } = useScroll();
@@ -387,6 +389,16 @@ const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStarted }) =
                     <Play className="h-5 w-5" />
                   </motion.div>
                   <span>Voir la démo (2min)</span>
+                </motion.button>
+                  {/*  Nouveau bouton Blog */}
+                <motion.button
+                  onClick={onShowBlog}
+                  className="border-2 border-pink-500 text-pink-600 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-pink-50 transition-all flex items-center justify-center space-x-2 group"
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <BookOpen className="h-5 w-5" />
+                  <span>Voir le Blog</span>
                 </motion.button>
               </motion.div>
 

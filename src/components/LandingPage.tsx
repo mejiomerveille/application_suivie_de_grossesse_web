@@ -172,7 +172,6 @@ const LandingPage: React.FC<{ onGetStarted: () => void; onShowBlog: () => void }
     { number: "98%", label: "Satisfaction client", icon: Star },
     { number: "24/7", label: "Support disponible", icon: Headphones },
     { number: "15+", label: "Pays couverts", icon: Globe },
-    { number: "15+", label: "Pays couverts", icon: TrendingUp }
   ];
 
   const beforeAfter = [
@@ -261,7 +260,9 @@ const LandingPage: React.FC<{ onGetStarted: () => void; onShowBlog: () => void }
   return (
     <div className="min-h-screen bg-white overflow-hidden">
       {/* Hero Section avec animations 3D */}
-      <section className="relative min-h-screen bg-gradient-to-br from-pink-50 via-white to-rose-50 overflow-hidden">
+      <section className="relative min-h-screen bg-gradient-to-br from-pink-50 via-white to-rose-50 overflow-hidden 
+           bg-[url('/images/femme-enceinte.png')] bg-cover bg-center lg:bg-none">
+
         {/* Éléments flottants animés */}
         <motion.div
           className="absolute top-20 left-10 w-20 h-20 bg-pink-200 rounded-full opacity-20"
@@ -304,13 +305,7 @@ const LandingPage: React.FC<{ onGetStarted: () => void; onShowBlog: () => void }
                 <span className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-rose-600 bg-clip-text text-transparent">
                   Intimia
                 </span>
-                {/* <motion.span
-                  className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-medium"
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  IA Powered
-                </motion.span> */}
+                
               </motion.div>
               
               <motion.h1
@@ -344,14 +339,15 @@ const LandingPage: React.FC<{ onGetStarted: () => void; onShowBlog: () => void }
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 }}
               >
-                Révolutionnez votre grossesse avec l'IA, des téléconsultations 24/7, 
-                une communauté de 50,000+ mamans et un suivi personnalisé unique.
+               Je fais confiance à <strong>Intimia</strong> pour le suivi de ma grossesse 💕.
+                Profitez vous aussi d’un accompagnement intelligent, d’un suivi personnalisé 
+                et d’une communauté bienveillante de mamans à travers le monde.
                 <motion.span
                   className="block mt-2 text-pink-600 font-semibold"
                   animate={{ opacity: [0.5, 1, 0.5] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
-                  ✨ Déjà 50,000+ mamans nous font confiance
+                  🤰 Faites comme moi, rejoignez Intimia dès aujourd’hui !
                 </motion.span>
               </motion.p>
               
@@ -375,21 +371,22 @@ const LandingPage: React.FC<{ onGetStarted: () => void; onShowBlog: () => void }
                     <ArrowRight className="h-5 w-5" />
                   </motion.div>
                 </motion.button>
-                
-                <motion.button
-                  onClick={() => setIsVideoPlaying(true)}
-                  className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-pink-500 hover:text-pink-500 transition-all flex items-center justify-center space-x-2 group"
-                  whileHover={{ scale: 1.05 }}
+                <motion.a
+                  href="https://wa.me/237679596656"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-green-500 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center space-x-2 group"
+                  whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
-                >
+                 >
+                  <span>Discuter sur WhatsApp</span>
                   <motion.div
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
                   >
-                    <Play className="h-5 w-5" />
+                    <ArrowRight className="h-5 w-5" />
                   </motion.div>
-                  <span>Voir la démo (2min)</span>
-                </motion.button>
+                </motion.a>
                   {/*  Nouveau bouton Blog */}
                 <motion.button
                   onClick={onShowBlog}
@@ -433,6 +430,174 @@ const LandingPage: React.FC<{ onGetStarted: () => void; onShowBlog: () => void }
               </motion.div>
             </motion.div>
             
+            {/* Image femme enceinte visible uniquement sur desktop */}
+            <motion.div
+              className="relative hidden lg:flex justify-center"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+            >
+              <img
+                src="/images/femme-enceinte.png"
+                alt="Femme enceinte utilisant Intimia"
+                className="rounded-3xl shadow-2xl w-full max-w-md object-cover"
+              />
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <ChevronDown className="h-8 w-8 text-gray-400" />
+        </motion.div>
+      </section>
+
+      {/* daowload Section avec animations 3D */}
+      <section className="relative min-h-screen bg-gradient-to-br from-pink-50 via-white to-rose-50 overflow-hidden">
+        {/* Éléments flottants animés */}
+        <motion.div
+          className="absolute top-20 left-10 w-20 h-20 bg-pink-200 rounded-full opacity-20"
+          variants={floatingVariants}
+          animate="animate"
+        />
+        <motion.div
+          className="absolute top-40 right-20 w-32 h-32 bg-blue-200 rounded-full opacity-20"
+          variants={floatingVariants}
+          animate="animate"
+          transition={{ delay: 1 }}
+        />
+        <motion.div
+          className="absolute bottom-40 left-20 w-24 h-24 bg-purple-200 rounded-full opacity-20"
+          variants={floatingVariants}
+          animate="animate"
+          transition={{ delay: 2 }}
+        />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-screen">
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <motion.div
+                className="flex items-center space-x-2 mb-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+              </motion.div>
+              
+              <motion.h1
+                className="text-4xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                Embarquez 
+                <motion.span
+                  className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-rose-600"
+                  animate={{ backgroundPosition: ["0%", "100%", "0%"] }}
+                  transition={{ duration: 3, repeat: Infinity }}
+                >
+                  {" "}dans l’aventure
+                </motion.span>
+                <br />
+                <motion.span
+                  className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-600"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8 }}
+                >
+                  Intimia
+                </motion.span>
+              </motion.h1>
+              
+              <motion.p
+                className="text-xl text-gray-600 mb-8 leading-relaxed"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+              >
+                téléchargez la version mobile et vivez une grossesse épanouie !
+                <motion.span
+                  className="block mt-2 text-pink-600 font-semibold"
+                  animate={{ opacity: [0.5, 1, 0.5] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  ✨ Déjà 50,000+ mamans nous font confiance
+                </motion.span>
+              </motion.p>
+              
+              <motion.div
+                className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mb-8"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 }}
+              >
+                {/* Boutons de téléchargement */}
+                <motion.div
+                  className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mb-8"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.8 }}
+                >
+                  {/* Bouton Android */}
+                  <motion.a
+                    href="https://play.google.com/store/apps/details?id=com.intimia" // 🔁 Remplace par ton vrai lien Play Store
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-green-600 text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center space-x-3 group"
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {/* <img
+                      src="data:image/jpeg;base64,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" 
+                      alt="Télécharger sur Google Play"
+                      className="h-16 w-10"
+                    /> */}
+                    <span>Télécharger sur Android</span>
+                  </motion.a>
+
+                  {/* Bouton iOS */}
+                  <motion.a
+                    href="https://apps.apple.com/app/id000000000" // 🔁 Remplace par ton vrai lien App Store
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-black text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center space-x-3 group"
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {/* <img
+                      src="/images/apple-logo.png" 
+                      alt="Télécharger sur App Store"
+                      className="h-6 w-6"
+                    /> */}
+                    <span>Télécharger sur iOS</span>
+                  </motion.a>
+                </motion.div>
+                <motion.button
+                  onClick={() => setIsVideoPlaying(true)}
+                  className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg hover:border-pink-500 hover:text-pink-500 transition-all flex items-center justify-center space-x-2 group"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <motion.div
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <Play className="h-5 w-5" />
+                  </motion.div>
+                  <span>Voir la démo (2min)</span>
+                </motion.button>
+
+              </motion.div>
+            </motion.div>
+            
             {/* Smartphone avec app */}
             <motion.div
               className="relative"
@@ -460,64 +625,82 @@ const LandingPage: React.FC<{ onGetStarted: () => void; onShowBlog: () => void }
                     </div>
                     
                     {/* App content */}
-                    <div className="h-[600px] bg-gradient-to-br from-pink-50 to-rose-50 p-4">
-                      <motion.div
-                        className="text-center mb-6"
-                        animate={{ opacity: [0.8, 1, 0.8] }}
-                        transition={{ duration: 3, repeat: Infinity }}
-                      >
-                        <div className="bg-gradient-to-r from-pink-500 to-rose-400 rounded-full p-3 w-fit mx-auto mb-3">
-                          <Heart className="h-6 w-6 text-white" />
-                        </div>
-                        <h3 className="font-bold text-gray-900">Semaine 24</h3>
-                        <p className="text-sm text-gray-600">Votre bébé fait la taille d'un épi de maïs</p>
-                      </motion.div>
-                      
-                      <motion.div
-                        className="bg-white rounded-2xl p-4 mb-4 shadow-sm"
-                        animate={{ y: [0, -5, 0] }}
-                        transition={{ duration: 4, repeat: Infinity }}
-                      >
-                        <div className="flex items-center space-x-3 mb-3">
-                          <div className="bg-blue-100 rounded-full p-2">
-                            <Video className="h-4 w-4 text-blue-600" />
-                          </div>
-                          <div>
-                            <h4 className="font-semibold text-sm">Téléconsultation</h4>
-                            <p className="text-xs text-gray-500">Dr. Martin - 14h30</p>
-                          </div>
-                        </div>
-                        <motion.button
-                          className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white py-2 rounded-lg text-sm font-medium"
-                          whileHover={{ scale: 1.02 }}
-                        >
-                          Rejoindre la consultation
-                        </motion.button>
-                      </motion.div>
-                      
-                      <motion.div
-                        className="grid grid-cols-2 gap-3"
-                        variants={containerVariants}
-                        animate="visible"
-                      >
-                        {[
-                          { icon: Calendar, label: "Calendrier", color: "pink" },
-                          { icon: ShoppingBag, label: "Boutique", color: "green" },
-                          { icon: Users, label: "Communauté", color: "purple" },
-                          { icon: BookOpen, label: "Conseils", color: "orange" }
-                        ].map((item, index) => (
-                          <motion.div
-                            key={index}
-                            className={`bg-${item.color}-50 rounded-xl p-3 text-center`}
-                            variants={itemVariants}
-                            whileHover={{ scale: 1.05 }}
-                          >
-                            <item.icon className={`h-6 w-6 text-${item.color}-600 mx-auto mb-2`} />
-                            <p className="text-xs font-medium text-gray-700">{item.label}</p>
-                          </motion.div>
-                        ))}
-                      </motion.div>
-                    </div>
+<div className="h-[600px] bg-gradient-to-br from-pink-50 to-rose-50 p-4">
+  {/* Section semaine et description */}
+  <motion.div
+    className="text-center mb-6"
+    animate={{ opacity: [0.8, 1, 0.8] }}
+    transition={{ duration: 3, repeat: Infinity }}
+  >
+    <div className="bg-gradient-to-r from-pink-500 to-rose-400 rounded-full p-3 w-fit mx-auto mb-3">
+      <Heart className="h-6 w-6 text-white" />
+    </div>
+    <h3 className="font-bold text-gray-900">Semaine 24</h3>
+    <p className="text-sm text-gray-600">Votre bébé fait la taille d’un épi de maïs 🌽</p>
+  </motion.div>
+
+  {/* Image de l’embryon à 24 semaines */}
+  <motion.div
+    className="flex justify-center mb-6"
+    initial={{ opacity: 0, y: 30 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 1 }}
+  >
+    <img
+      src="/images/embryon-24-semaines.png" 
+      alt="Embryon à 24 semaines"
+      className="w-40 h-40 object-cover rounded-full shadow-lg border-4 border-pink-200"
+    />
+  </motion.div>
+
+  {/* Bloc Téléconsultation */}
+  <motion.div
+    className="bg-white rounded-2xl p-4 mb-4 shadow-sm"
+    animate={{ y: [0, -5, 0] }}
+    transition={{ duration: 4, repeat: Infinity }}
+  >
+    <div className="flex items-center space-x-3 mb-3">
+      <div className="bg-blue-100 rounded-full p-2">
+        <Video className="h-4 w-4 text-blue-600" />
+      </div>
+      <div>
+        <h4 className="font-semibold text-sm">Téléconsultation</h4>
+        <p className="text-xs text-gray-500">Dr. Martin - 14h30</p>
+      </div>
+    </div>
+    <motion.button
+      className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white py-2 rounded-lg text-sm font-medium"
+      whileHover={{ scale: 1.02 }}
+    >
+      Rejoindre la consultation
+    </motion.button>
+  </motion.div>
+
+  {/* Icônes du bas */}
+  <motion.div
+    className="grid grid-cols-2 gap-3"
+    variants={containerVariants}
+    animate="visible"
+  >
+    {[
+      { icon: Calendar, label: "Calendrier", color: "pink" },
+      { icon: ShoppingBag, label: "Boutique", color: "green" },
+      { icon: Users, label: "Communauté", color: "purple" },
+      { icon: BookOpen, label: "Conseils", color: "orange" }
+    ].map((item, index) => (
+      <motion.div
+        key={index}
+        className={`bg-${item.color}-50 rounded-xl p-3 text-center`}
+        variants={itemVariants}
+        whileHover={{ scale: 1.05 }}
+      >
+        <item.icon className={`h-6 w-6 text-${item.color}-600 mx-auto mb-2`} />
+        <p className="text-xs font-medium text-gray-700">{item.label}</p>
+      </motion.div>
+    ))}
+  </motion.div>
+</div>
+
                   </div>
                 </div>
               </motion.div>
@@ -541,15 +724,6 @@ const LandingPage: React.FC<{ onGetStarted: () => void; onShowBlog: () => void }
             </motion.div>
           </div>
         </div>
-
-        {/* Scroll indicator */}
-        <motion.div
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <ChevronDown className="h-8 w-8 text-gray-400" />
-        </motion.div>
       </section>
 
       {/* Features Section avec animations avancées */}

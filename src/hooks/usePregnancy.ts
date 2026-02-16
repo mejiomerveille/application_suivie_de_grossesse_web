@@ -40,6 +40,7 @@ export const usePregnancy = (pregnancyStartDate?: string) => {
   const getCurrentWeek = (): number => {
   // ✅ Si le backend envoie current_week, on le prend en priorité
   if (profile?.data.current_week) {
+    console.log(profile)
     return profile.data.current_week;
   }
 

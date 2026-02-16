@@ -1,4 +1,4 @@
-const PREGNANCY_API_BASE_URL = process.env.NEXT_PUBLIC_PREGNANCY_API_BASE_URL || 'http://localhost:3001/api';
+const PREGNANCY_API_BASE_URL = process.env.NEXT_PUBLIC_PREGNANCY_API_BASE_URL || 'https://service-grossesse-intimia.onrender.com/api';
 
 export interface PregnancyProfile {
   id?: string;

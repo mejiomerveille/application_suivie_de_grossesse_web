@@ -4,6 +4,7 @@ import ArticleCard from '../ArticleCard';
 import { pregnancyApiService } from '../../services/pregnancyApi';
 import { usePregnancy } from '../../hooks/usePregnancy';
 import { useAuth } from '../../hooks/useAuth';
+import ArticleDetail from '../ArticleDetail';
 
 const UpcomingAppointments: React.FC = () => {
   const { user } =  useAuth();
@@ -13,7 +14,6 @@ const UpcomingAppointments: React.FC = () => {
     daysUntilDue,
     isLoading: pregnancyLoading,
     error: pregnancyError,
-    getWeekInfo 
   } = usePregnancy(user?.pregnancyStartDate);
 
   const [articles, setArticles] = useState<any[]>([]);  
@@ -52,6 +52,17 @@ const UpcomingAppointments: React.FC = () => {
   if (pregnancyLoading) return <p>Chargement des données de grossesse...</p>;
   if (pregnancyError) return <p>Erreur : {pregnancyError.message}</p>;
 
+     // Si un article est sélectionné, afficher la page de détail
+    if (selectedArticle) {
+      return (
+        <ArticleDetail
+          article={selectedArticle}
+          onBack={handleBackFromArticle}
+          onArticleClick={handleArticleClick}
+        />
+      );
+    }
+
   return (
     <div className="space-y-6">
       {/* Informations principales */}
@@ -84,39 +95,38 @@ const UpcomingAppointments: React.FC = () => {
         </div>
       </div>
 
-      {/* Développement du bébé */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Développement cette semaine</h2>
-        <div className="prose prose-sm max-w-none text-gray-600">
-          <p>{profile?.weeklyDevelopment || 'Informations sur le développement du bébé pour cette semaine.'}</p>
-        </div>
-      </div>
-
       {/* Articles recommandés */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-gray-900">Articles recommandés</h2>
-          <button className="text-pink-600 hover:text-pink-700 font-medium text-sm">
+          {/* <button className="text-pink-600 hover:text-pink-700 font-medium text-sm">
             Voir tout →
-          </button>
+          </button> */}
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {articles.length > 0 ? (
-            articles.slice(0, 4).map((article) => (
-              <ArticleCard
-                key={article.id}
-                article={article}
-                onClick={() => handleArticleClick(article)}
-              />
-            ))
-          ) : (
-            <div className="col-span-2 text-center py-8">
-              <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500">Aucun article disponible</p>
-            </div>
-          )}
-        </div>
+        {selectedArticle ? (
+          <div className="bg-white rounded-2xl shadow-sm p-6">
+            <button onClick={handleBackFromArticle} className="mb-4 text-pink-600">← Retour</button>
+            <h2 className="text-xl font-semibold">{selectedArticle.title}</h2>
+            <p className="text-gray-700 mt-2">{selectedArticle.content}</p>
+          </div>
+        ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {articles.length > 0 ? (
+                  articles.slice(0, 4).map((article) => (
+                    <ArticleCard
+                      key={article.id}
+                      article={article}
+                      onClick={() => handleArticleClick(article)}
+                    />
+                  ))
+                ) : (
+                  <div className="col-span-2 text-center py-8">
+                    <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-500">Aucun article disponible</p>
+                  </div>
+                )}
+              </div>
+        )}
       </div>
     </div>
   );

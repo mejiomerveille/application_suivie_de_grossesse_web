@@ -54,6 +54,13 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, onClick }) => {
     return content.substring(0, maxLength).trim() + '...';
   };
 
+  const formatDate = (dateStr?: string) => {
+  if (!dateStr) return '---';
+  const date = new Date(dateStr);
+  return isNaN(date.getTime()) ? dateStr : date.toLocaleDateString('fr-FR');
+};
+
+
   return (
     <div 
       className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-300 cursor-pointer group"
@@ -107,14 +114,19 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, onClick }) => {
               </div>
             )}
           </div>
-          <span>{new Date(article.published_date).toLocaleDateString('fr-FR')}</span>
+          <span>{formatDate(article.published_date)}</span>
+
         </div>
 
         {/* Bouton de lecture */}
+
         <div className="flex items-center justify-between">
-          <button className="flex items-center space-x-2 text-pink-600 hover:text-pink-700 font-medium text-sm group-hover:translate-x-1 transition-transform">
-            <span>Lire l'article</span>
-            <ArrowRight className="h-4 w-4" />
+          <button 
+            className="flex items-center space-x-2 text-pink-600 hover:text-pink-700 font-medium text-sm group-hover:translate-x-1 transition-transform"
+            onClick={() => onClick(article)} 
+            >
+              <span>Lire l'article</span>
+              <ArrowRight className="h-4 w-4" />
           </button>
         </div>
       </div>

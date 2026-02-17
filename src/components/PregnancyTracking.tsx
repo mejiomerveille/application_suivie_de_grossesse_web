@@ -141,13 +141,7 @@ const PregnancyTracking: React.FC = () => {
     }
   };
 
-    const handleArticleClick = (article: any) => {
-    setSelectedArticle(article);
-  };
 
-  const handleBackFromArticle = () => {
-    setSelectedArticle(null);
-  };
 
   const fetExercices = async () => {
   try {
@@ -308,16 +302,7 @@ const handleSaveJournalEntry = async () => {
     }
   };
 
-    // Si un article est sélectionné, afficher la page de détail
-    if (selectedArticle) {
-      return (
-        <ArticleDetail
-          article={selectedArticle}
-          onBack={handleBackFromArticle}
-          onArticleClick={handleArticleClick}
-        />
-      );
-    }
+ 
 
   const renderJournal = () => {
   const safeEntries = Array.isArray(diaryEntries) ? diaryEntries : [];

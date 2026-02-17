@@ -80,11 +80,13 @@ const AuthScreen: React.FC = () => {
         const user = await login(formData.email, formData.password);
         setMessage(`Bienvenue ${user.firstName} !`);
         setMessageType('success');
-        
-        // Redirection automatique après 1.5 secondes
+
+        // Redirection / reload après 1.5 secondes
         setTimeout(() => {
-          // La redirection se fera automatiquement via App.tsx quand user sera défini
+          // Recharge la page pour que App.tsx relise le user et les données
+          window.location.reload();
         }, 1500);
+
       } else {
         if (formData.password !== formData.confirmPassword) {
           setMessage('Les mots de passe ne correspondent pas');
@@ -111,6 +113,7 @@ const AuthScreen: React.FC = () => {
       setIsLoading(false);
     }
   };
+
 
   const handleRoleSelect = async (role: string, additionalInfo?: { doctorSpecialty?: string; relationToPregnantWoman?: string; expectedDueDate?: string }) => {
     try {

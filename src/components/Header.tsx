@@ -1,5 +1,5 @@
-import React from 'react';
-import { Bell, User, LogOut, Crown } from 'lucide-react';
+import React, { useState } from 'react';
+import { Bell, User, LogOut, Crown, Menu, X } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 interface HeaderProps {
@@ -9,92 +9,121 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
   const { user, logout, getAvailableFeatures, getUserDisplayName, getUserRoleDisplay } = useAuth();
+  const [isOpen, setIsOpen] = useState(false);
 
   const availableFeatures = getAvailableFeatures();
 
   const allNavigation = [
-    { id: 'dashboard', name: 'Tableau de bord', roles: ['patient', 'family', 'professional', 'admin'] },
-    { id: 'pregnancy', name: 'Ma Grossesse', roles: ['patient'] },
-    { id: 'calendar', name: 'Calendrier', roles: ['patient', 'family', 'professional'] },
-    { id: 'centers', name: 'Centres de santé', roles: ['patient', 'family'] },
-    { id: 'tips', name: 'Conseils', roles: ['patient', 'family'] },
-    { id: 'shop', name: 'Boutique', roles: ['patient', 'family'] },
-    { id: 'consultation', name: 'Téléconsultation', roles: ['patient', 'family', 'professional'] },
-    { id: 'patients', name: 'Mes Patients', roles: ['professional'] },
-    { id: 'merchant-dashboard', name: 'Mon Commerce', roles: ['merchant'] },
-    { id: 'products', name: 'Mes Produits', roles: ['merchant'] },
-    { id: 'orders', name: 'Commandes', roles: ['merchant'] },
-    { id: 'admin', name: 'Administration', roles: ['admin'] },
+    { id: 'dashboard', name: 'Tableau de bord' },
+    { id: 'pregnancy', name: 'Ma Grossesse' },
+    { id: 'calendar', name: 'Calendrier' },
+    { id: 'centers', name: 'Centres de santé' },
+    { id: 'tips', name: 'Conseils' },
+    { id: 'shop', name: 'Boutique' },
+    { id: 'consultation', name: 'Téléconsultation' },
+    { id: 'patients', name: 'Mes Patients' },
+    { id: 'merchant-dashboard', name: 'Mon Commerce' },
+    { id: 'products', name: 'Mes Produits' },
+    { id: 'orders', name: 'Commandes' },
+    { id: 'admin', name: 'Administration' },
   ];
 
-  const navigation = allNavigation.filter(item => availableFeatures.includes(item.id));
+  const navigation = allNavigation.filter(item =>
+    availableFeatures.includes(item.id)
+  );
 
   return (
-    <header className="bg-white shadow-sm border-b border-pink-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-8">
-            <div className="flex items-center">
-              <div className="bg-gradient-to-r from-pink-500 to-rose-400 rounded-lg p-2">
-                <span className="text-white font-bold text-lg">Intimia</span>
-              </div>
-            </div>
-            
-            <nav className="hidden md:flex space-x-6">
-              {navigation.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => onSectionChange(item.id)}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    activeSection === item.id
-                      ? 'text-pink-600 bg-pink-50'
-                      : 'text-gray-600 hover:text-pink-600 hover:bg-pink-50'
-                  }`}
-                >
-                  {item.name}
-                </button>
-              ))}
-            </nav>
+    <>
+      {/* Mobile Top Bar */}
+      <div className="md:hidden flex items-center justify-between bg-white p-4 shadow">
+        <span className="font-bold text-pink-600 text-lg">Intimia</span>
+        <button onClick={() => setIsOpen(true)}>
+          <Menu className="h-6 w-6 text-gray-600" />
+        </button>
+      </div>
+
+      {/* Overlay mobile */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-40 z-40 md:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+{/* Sidebar */}
+      <aside
+        className={`fixed top-0 left-0 h-screen w-64 bg-white shadow-lg 
+        transform transition-transform duration-300 z-50
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        md:translate-x-0`}
+      >
+        <div className="flex flex-col h-full">
+
+          {/* Header / Logo */}
+          <div className="flex items-center justify-between p-4 border-b">
+            <span className="font-bold text-pink-600 text-xl">Intimia</span>
+            <button className="md:hidden" onClick={() => setIsOpen(false)}>
+              <X className="h-6 w-6 text-gray-600" />
+            </button>
           </div>
 
-          <div className="flex items-center space-x-4">
+          {/* Navigation (SCROLLABLE) */}
+          <nav className="flex-1 overflow-y-auto p-4 space-y-2">
+            {navigation.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => {
+                  onSectionChange(item.id);
+                  setIsOpen(false);
+                }}
+                className={`w-full text-left px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  activeSection === item.id
+                    ? 'bg-pink-100 text-pink-600'
+                    : 'text-gray-600 hover:bg-pink-50 hover:text-pink-600'
+                }`}
+              >
+                {item.name}
+              </button>
+            ))}
+          </nav>
+
+          {/* User Section (toujours en bas) */}
+          <div className="border-t p-4">
             {user?.isPremium && (
-              <div className="flex items-center space-x-1 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+              <div className="flex items-center space-x-2 bg-yellow-400 text-white px-3 py-1 rounded-full text-xs font-medium mb-3">
                 <Crown className="h-4 w-4" />
                 <span>Premium</span>
               </div>
             )}
-            
-            <button className="relative p-2 text-gray-400 hover:text-gray-500 transition-colors">
-              <Bell className="h-6 w-6" />
-              <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-pink-400"></span>
-            </button>
 
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center space-x-2">
-                <div className="bg-pink-100 rounded-full p-2">
-                  <User className="h-5 w-5 text-pink-600" />
-                </div>
-                <div className="hidden md:block">
-                  <p className="text-sm font-medium text-gray-700">
-                    {getUserDisplayName()}
-                  </p>
-                  <p className="text-xs text-gray-500">{getUserRoleDisplay()}</p>
-                </div>
+            <div className="flex items-center space-x-3 mb-3">
+              <div className="bg-pink-100 rounded-full p-2">
+                <User className="h-5 w-5 text-pink-600" />
               </div>
-              
-              <button
-                onClick={logout}
-                className="p-2 text-gray-400 hover:text-red-500 transition-colors"
-                title="Se déconnecter"
-              >
-                <LogOut className="h-5 w-5" />
-              </button>
+              <div>
+                <p className="text-sm font-medium text-gray-700">
+                  {getUserDisplayName()}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {getUserRoleDisplay()}
+                </p>
+              </div>
             </div>
+
+            <button
+              onClick={logout}
+              className="flex items-center space-x-2 text-gray-500 hover:text-red-500 text-sm"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Se déconnecter</span>
+            </button>
           </div>
+
         </div>
-      </div>
-    </header>
+      </aside>
+
+    </>
   );
 };
 

@@ -117,16 +117,22 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 md:flex">
+      
+      {/* Sidebar */}
       <Header 
         activeSection={activeSection} 
         onSectionChange={setActiveSection}
       />
-      <main>
+
+      {/* Contenu principal */}
+      <main className="flex-1 md:ml-64 p-6">
         {renderActiveSection()}
       </main>
+
     </div>
   );
 }
+
 
 export default App;

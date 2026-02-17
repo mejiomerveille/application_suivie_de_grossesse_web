@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://service-authentification-intimia.onrender.com/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://service-authentification-intimia.onrender.com/api';
 
 
 export interface ApiResponse<T> {

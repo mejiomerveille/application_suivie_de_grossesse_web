@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, Lock, User, Calendar, Heart, Shield } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { apiService } from '../services/api';
 import OtpVerification from './OtpVerification';
 import RoleSelection from './RoleSelection';
 
@@ -20,54 +19,7 @@ const AuthScreen: React.FC = () => {
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'success' | 'error' | ''>('');
   
-  const { login, storePendingUserData, pendingEmail, verifyEmail, register } = useAuth();
-
-   const handleVerificationSuccess = () => {
-    // L'utilisateur sera automatiquement connecté après vérification
-    setShowOtpVerification(false);
-  };
-
-  const handleBackFromOtp = () => {
-    setShowOtpVerification(false);
-    setShowRoleSelection(true);
-  };
-
-  const completePendingRegistration = async (role: string, additionalInfo?: { doctorSpecialty?: string; relationToPregnantWoman?: string; expectedDueDate?: string }) => {
-    if (!pendingEmail) {
-      throw new Error('Aucune donnée d\'inscription en attente');
-    }
-
-    const registerData = {
-      username: pendingEmail.split('@')[0],
-      email: pendingEmail,
-      password: formData.password,
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      phone: '',
-      role: role.toUpperCase() as 'PATIENT' | 'FAMILY' | 'PROFESSIONAL' | 'ADMIN',
-      specialization: additionalInfo?.doctorSpecialty,
-      relationToPatient: additionalInfo?.relationToPregnantWoman,
-      expectedDueDate: additionalInfo?.expectedDueDate
-    };
-
-    const response = await apiService.register(registerData);
-    
-    if (response.error) {
-      throw new Error(response.error);
-    }
-
-    return response.data;
-  };
-
-  if (showOtpVerification && pendingEmail) {
-    return (
-      <OtpVerification
-        email={pendingEmail}
-        onVerificationSuccess={handleVerificationSuccess}
-        onBack={handleBackFromOtp}
-      />
-    );
-  }
+  const { login, storePendingUserData, pendingEmail, completePendingRegistration } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,13 +32,11 @@ const AuthScreen: React.FC = () => {
         const user = await login(formData.email, formData.password);
         setMessage(`Bienvenue ${user.firstName} !`);
         setMessageType('success');
-
-        // Redirection / reload après 1.5 secondes
+        
+        // Redirection automatique après 1.5 secondes
         setTimeout(() => {
-          // Recharge la page pour que App.tsx relise le user et les données
-          window.location.reload();
+          // La redirection se fera automatiquement via App.tsx quand user sera défini
         }, 1500);
-
       } else {
         if (formData.password !== formData.confirmPassword) {
           setMessage('Les mots de passe ne correspondent pas');
@@ -96,7 +46,6 @@ const AuthScreen: React.FC = () => {
         
         // Stocker les données utilisateur et passer à la sélection de rôle
         storePendingUserData({
-          username: formData.email.split('@')[0],
           email: formData.email,
           password: formData.password,
           firstName: formData.firstName,
@@ -114,11 +63,10 @@ const AuthScreen: React.FC = () => {
     }
   };
 
-
   const handleRoleSelect = async (role: string, additionalInfo?: { doctorSpecialty?: string; relationToPregnantWoman?: string; expectedDueDate?: string }) => {
     try {
       setIsLoading(true);
-      const response = await completePendingRegistration(role as any, additionalInfo);
+      await completePendingRegistration(role as 'patient' | 'family' | 'professional' | 'admin', additionalInfo);
       setShowOtpVerification(true);
       setShowRoleSelection(false);
     } catch (error) {
@@ -130,9 +78,32 @@ const AuthScreen: React.FC = () => {
     }
   };
 
+  const handleVerificationSuccess = () => {
+    // Après vérification OTP, le compte est créé. L'utilisateur doit se connecter.
+    setShowOtpVerification(false);
+    setIsLogin(true);
+    setMessage('Email vérifié avec succès ! Vous pouvez maintenant vous connecter.');
+    setMessageType('success');
+  };
+
+  const handleBackFromOtp = () => {
+    setShowOtpVerification(false);
+    setShowRoleSelection(true);
+  };
+
   const handleBackFromRole = () => {
     setShowRoleSelection(false);
   };
+
+  if (showOtpVerification && pendingEmail) {
+    return (
+      <OtpVerification
+        email={pendingEmail}
+        onVerificationSuccess={handleVerificationSuccess}
+        onBack={handleBackFromOtp}
+      />
+    );
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({

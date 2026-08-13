@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
-import { Package, ShoppingCart, TrendingUp, Users, Plus, Eye, CreditCard as Edit, Trash2, Phone, MessageCircle } from 'lucide-react';
+import React from 'react';
+import { Package, ShoppingCart, TrendingUp, Users, Plus, Eye, Phone, MessageCircle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 const MerchantDashboard: React.FC = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('overview');
 
   const stats = [
     {

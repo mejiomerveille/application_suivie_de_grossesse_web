@@ -74,7 +74,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     setError('');
 
     try {
-      const response = await apiService.verifyEmail(email, code);
+      const response = await apiService.verifyOtp(email, code);
       
       if (response.error) {
         setError(response.error);

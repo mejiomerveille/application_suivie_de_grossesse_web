@@ -1,9 +1,10 @@
 export interface User {
-  userId: string;
+  id: string;
   email: string;
   firstName: string;
   lastName: string;
   avatar?: string;
+  phone?: string;
   role: 'patient' | 'family' | 'professional' | 'admin' | 'merchant';
   doctorSpecialty?: string;
   relationToPregnantWoman?: string;

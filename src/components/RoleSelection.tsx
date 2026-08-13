@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Heart, Stethoscope, Users, ArrowRight, ShoppingBag } from 'lucide-react';
+import { User, Heart, Stethoscope, Users, ArrowRight } from 'lucide-react';
 
 interface RoleSelectionProps {
   onRoleSelect: (role: string, additionalInfo?: { doctorSpecialty?: string; relationToPregnantWoman?: string; expectedDueDate?: string }) => void;
@@ -197,124 +197,12 @@ const RoleSelection: React.FC<RoleSelectionProps> = ({ onRoleSelect, onBack, isL
           </div>
         )}
 
-        {/* Informations supplémentaires pour commerçant */}
-        {selectedRole === 'merchant' && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Informations sur votre commerce
-            </h3>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nom de votre commerce *
-                  </label>
-                  <input
-                    type="text"
-                    value={businessInfo.businessName}
-                    onChange={(e) => setBusinessInfo({...businessInfo, businessName: e.target.value})}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                    placeholder="Ex: Bébé Tendresse"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Téléphone commerce *
-                  </label>
-                  <input
-                    type="tel"
-                    value={businessInfo.businessPhone}
-                    onChange={(e) => setBusinessInfo({...businessInfo, businessPhone: e.target.value})}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                    placeholder="+221 XX XXX XX XX"
-                    required
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    WhatsApp Business
-                  </label>
-                  <input
-                    type="tel"
-                    value={businessInfo.businessWhatsapp}
-                    onChange={(e) => setBusinessInfo({...businessInfo, businessWhatsapp: e.target.value})}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                    placeholder="+221 XX XXX XX XX"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Adresse du magasin *
-                  </label>
-                  <input
-                    type="text"
-                    value={businessInfo.businessAddress}
-                    onChange={(e) => setBusinessInfo({...businessInfo, businessAddress: e.target.value})}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                    placeholder="Adresse complète"
-                    required
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description de votre commerce
-                </label>
-                <textarea
-                  value={businessInfo.businessDescription}
-                  onChange={(e) => setBusinessInfo({...businessInfo, businessDescription: e.target.value})}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none"
-                  rows={3}
-                  placeholder="Décrivez votre commerce et vos spécialités..."
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Catégories de produits (sélectionnez plusieurs)
-                </label>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                  {businessCategories.map((category) => (
-                    <label key={category} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={businessInfo.businessSpecialties.includes(category)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setBusinessInfo({
-                              ...businessInfo,
-                              businessSpecialties: [...businessInfo.businessSpecialties, category]
-                            });
-                          } else {
-                            setBusinessInfo({
-                              ...businessInfo,
-                              businessSpecialties: businessInfo.businessSpecialties.filter(s => s !== category)
-                            });
-                          }
-                        }}
-                        className="rounded border-gray-300 text-pink-600 focus:ring-pink-500"
-                      />
-                      <span className="text-sm text-gray-700">{category}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         <div className="text-center">
           <button
             onClick={handleContinue}
             disabled={isLoading || !selectedRole || 
               (selectedRole === 'professional' && !doctorSpecialty) ||
-              (selectedRole === 'family' && !relationToPregnantWoman) ||
-              (selectedRole === 'merchant' && (!businessInfo.businessName || !businessInfo.businessPhone || !businessInfo.businessAddress))
+              (selectedRole === 'family' && !relationToPregnantWoman)
             }
             className="bg-gradient-to-r from-pink-500 to-rose-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-pink-600 hover:to-rose-700 focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none disabled:cursor-not-allowed flex items-center space-x-2 mx-auto"
           >

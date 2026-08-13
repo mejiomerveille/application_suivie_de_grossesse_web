@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BookOpen, Clock, Star, Lock, Search, Filter, Play, Crown } from 'lucide-react';
+import { BookOpen, Clock, Star, Lock, Search, ListFilter as Filter, Play } from 'lucide-react';
 import type { HealthTip } from '../types';
 import ArticleDetail from './ArticleDetail';
 

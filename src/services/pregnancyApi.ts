@@ -1,4 +1,4 @@
-const PREGNANCY_API_BASE_URL = import.meta.env.VITE_API_GROSSESSE_URL || 'https://service-grossesse-intimia.onrender.com/api';
+const PREGNANCY_API_BASE_URL = import.meta.env.VITE_PREGNANCY_API_BASE_URL || 'http://localhost:3001/api';
 
 export interface PregnancyProfile {
   id?: string;
@@ -360,7 +360,7 @@ class PregnancyApiService {
 
   // ===== TUTORIELS RA =====
   async getARTutorials(): Promise<ARTutorial[]> {
-    const response = await fetch(`${PREGNANCY_API_BASE_URL}/ar-tutorials/categories`, {
+    const response = await fetch(`${PREGNANCY_API_BASE_URL}/ar-tutorials`, {
       method: 'GET',
       headers: this.getHeaders(),
     });

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { pregnancyApiService, type PregnancyProfile } from '../services/pregnancyApi';
 
-export const usePregnancy = (pregnancyStartDate?: string) => {
+export const usePregnancy = () => {
   const [profile, setProfile] = useState<PregnancyProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -15,7 +15,6 @@ export const usePregnancy = (pregnancyStartDate?: string) => {
       setIsLoading(true);
       const profileData = await pregnancyApiService.getProfile();
       setProfile(profileData);
-      // console.log (profileData.data.current_week)
       setError(null);
     } catch (err) {
       console.log('Aucun profil trouvé, création nécessaire');
@@ -38,58 +37,26 @@ export const usePregnancy = (pregnancyStartDate?: string) => {
   };
 
   const getCurrentWeek = (): number => {
-  // ✅ Si le backend envoie current_week, on le prend en priorité
-  if (profile?.data.current_week) {
-    console.log(profile)
-    return profile.data.current_week;
-  }
+    if (!profile?.last_menstrual_period) return 0;
+    
+    const lmpDate = new Date(profile.last_menstrual_period);
+    const today = new Date();
+    const diffTime = today.getTime() - lmpDate.getTime();
+    const diffWeeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
+    
+    return Math.max(0, Math.min(diffWeeks, 42));
+  };
 
-  // 🧮 Sinon, on calcule à partir de la date des dernières règles
-  if (!profile?.last_menstrual_period) return 0;
-
-  const lmpDate = new Date(profile.last_menstrual_period);
-  const today = new Date();
-  const diffTime = today.getTime() - lmpDate.getTime();
-  const diffWeeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
-
-  return Math.max(0, Math.min(diffWeeks, 42));
-};
-
-const getDaysUntilDue = (dueDate?: string): number => {
-  // Essaie d'abord d'utiliser current_week envoyé par le backend.
-  // On gère plusieurs formes possibles : profile.current_week ou profile.data.current_week.
-  const currentWeekFromBackend = profile?.current_week ?? profile?.data?.current_week;
-
-  if (currentWeekFromBackend !== undefined && currentWeekFromBackend !== null && !isNaN(Number(currentWeekFromBackend))) {
-    const totalWeeks = 42; // semaines totales considérées
-    const currentWeekNumber = Number(currentWeekFromBackend);
-    const remainingWeeks = Math.max(0, totalWeeks - currentWeekNumber);
-    const daysUntilDue = remainingWeeks * 7;
-    // console.log('getDaysUntilDue (from current_week):', { currentWeekNumber, remainingWeeks, daysUntilDue });
-    return Math.max(0, daysUntilDue);
-  }
-
-  // Si pas de current_week disponible, on peut calculer à partir de dueDate (fallback).
-  if (dueDate) {
+  const getDaysUntilDue = (dueDate?: string): number => {
+    if (!dueDate) return 0;
+    
     const due = new Date(dueDate);
-    if (isNaN(due.getTime())) {
-      console.log('getDaysUntilDue: dueDate invalide ->', dueDate);
-      return 0;
-    }
     const today = new Date();
     const diffTime = due.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    const days = Math.max(0, diffDays);
-    console.log('getDaysUntilDue (from dueDate):', { dueDate, days });
-    return days;
-  }
-
-  // Aucun input disponible
-  // console.log('getDaysUntilDue: no current_week and no dueDate -> 0');
-  return 0;
-};
-
-
+    
+    return Math.max(0, diffDays);
+  };
 
   const getWeekInfo = (week: number) => {
     const weeklyInfo: { [key: number]: any } = {
@@ -134,7 +101,6 @@ const getDaysUntilDue = (dueDate?: string): number => {
 
   const currentWeek = getCurrentWeek();
   const weekInfo = getWeekInfo(currentWeek);
-  const daysUntilDue=getDaysUntilDue();
 
   return {
     profile,
@@ -142,7 +108,6 @@ const getDaysUntilDue = (dueDate?: string): number => {
     error,
     currentWeek,
     weekInfo,
-    daysUntilDue,
     createProfile,
     loadProfile,
     getDaysUntilDue,

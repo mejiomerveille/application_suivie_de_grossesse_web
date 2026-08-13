@@ -1,20 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  ArrowLeft, 
-  Clock, 
-  User, 
-  Calendar, 
-  Share2, 
-  Bookmark, 
-  Heart,
-  Search,
-  Filter,
-  ChevronRight,
-  Star,
-  Eye,
-  MessageCircle
-} from 'lucide-react';
+import { ArrowLeft, Clock, User, Calendar, Share2, Bookmark, Heart, Search, ListFilter as Filter, ChevronRight, Eye, MessageCircle } from 'lucide-react';
 
 interface BlogPost {
   id: string;

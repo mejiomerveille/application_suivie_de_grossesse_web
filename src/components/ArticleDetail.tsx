@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Clock, User, Calendar, Share2, Bookmark, Heart } from 'lucide-react';
 import { pregnancyApiService } from '../services/pregnancyApi';
-import ArticleCard from './ArticleCard';
 
 interface Article {
   id: string;
   title: string;
   content: string;
   category: string;
-  author: string;
-  published_date: string;
+  author?: string;
+  published_date?: string;
   image_url?: string;
   read_time?: number;
 }
@@ -17,7 +16,8 @@ interface Article {
 interface ArticleDetailProps {
   article: Article;
   onBack: () => void;
-  onArticleClick: (article: Article) => void;
+  onArticleClick?: (article: Article) => void;
+  onUpgradeToPremium?: () => void;
 }
 
 const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onArticleClick }) => {
@@ -129,7 +129,7 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onArticl
                 <div className="flex items-center space-x-1 text-gray-500">
                   <Calendar className="h-4 w-4" />
                   <span className="text-sm">
-                    {new Date(article.published_date).toLocaleDateString('fr-FR')}
+                    {article.published_date && new Date(article.published_date).toLocaleDateString('fr-FR')}
                   </span>
                 </div>
                 {article.read_time && (
@@ -213,7 +213,7 @@ const ArticleDetail: React.FC<ArticleDetailProps> = ({ article, onBack, onArticl
                   {similarArticles.map((similarArticle) => (
                     <div
                       key={similarArticle.id}
-                      onClick={() => onArticleClick(similarArticle)}
+                      onClick={() => onArticleClick?.(similarArticle)}
                       className="cursor-pointer group"
                     >
                       <div className="flex space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
